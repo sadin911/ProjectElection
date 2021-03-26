@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+	async function call(base64){
+		console.log(base64)
+		document.getElementById("resultData").innerHTML  = "sending message"
+		document.getElementById("processingtime").innerHTML  = ""
+		document.getElementById("resultData2").innerHTML  = ""
+		let req = {"image":base64}
+		
+		console.log('req',req)
+		var optionAxios = {
+            headers: {
+				'Content-Type': 'application/json',
+				'Acces-Control-Allow-Origin': '*',
+            }
+        }
+		var t0 = performance.now()
+		axios.post('http://localhost:8080/api/election',req,optionAxios)
+		  .then(function (response) {
+			console.log('response',response.data);
+			//alert(response.data);
+			
+			let corrected_scores = response.data.data.map(item => item.corrected_score)
+			let scores = response.data.data.map(item => item.score)
+			var t1 = performance.now()
+			// console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
+			document.getElementById("processingtime").innerHTML  = `processing time ${parseInt(t1 - t0)/1000} seconds.`
+			document.getElementById("resultData").innerHTML  = 'raw score: ' + JSON.stringify(scores, null, 2)
+			document.getElementById("resultData2").innerHTML  = 'corrected score: ' + JSON.stringify(corrected_scores, null, 2)
+			
+		  })
+		  .catch(function (error) {
+			console.log('error',error);
+			//alert('error',error);
+			document.getElementById("resultData").innerHTML  = 'error'+JSON.stringify(error, null, 2)
+		  });
+		  
+		  
+	  
+	}
+
+	
+	
+	function test(){
+		var inputFile = document.getElementById("inputFile").files[0];
+		alert(inputFile);
+	}
+	
+	function uploadFileToServer() {
+		var file = document.getElementById("inputFile").files[0];
+		//console.log(file);
+		var reader = new FileReader();
+		reader.readAsBinaryString(file);
+
+		reader.onload = function() {
+			//console.log(btoa(reader.result));
+			
+			call(btoa(reader.result))
+		};
+		reader.onerror = function() {
+			console.log('there are some problems');
+		};
+	}
+
+</script>
+</head>
+  <body>
+    <input id="inputFile" type="file" accept="image/*" capture="camera" style="color:green;width:200px;height:100px"/>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<button onClick="uploadFileToServer()" style="color:red;width:150px;height:70px">send</button>
+	
+	<br>
+	<div id='processingtime' style="font-size:18px;"></div>
+	<br>
+	<div id='resultData' style="font-size:18px;"></div>
+	<br>
+	<div id='resultData2' style="font-size:18px;"></div>
+  </body>
+</html>

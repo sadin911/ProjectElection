@@ -1,0 +1,12 @@
+res.png
+djs.png
+
+*/logs
+*/result
+*/images/trainset
+*/images
+*.jpg
+*.h5
+*.png
+src/countscore.h5
+src/countscore64.h5
